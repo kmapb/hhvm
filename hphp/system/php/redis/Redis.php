@@ -509,7 +509,7 @@ class Redis {
 
   /* Scan --------------------------------------------------------------- */
 
-  protected function scanImpl($cmd, $key, $cursor, $pattern, $count) {
+  protected function scanImpl($cmd, $key, &$cursor, $pattern, $count) {
     $args = [];
     if ($key !== null) {
       $args[] = $this->_prefix($key);
@@ -529,15 +529,20 @@ class Redis {
       $args[] = (int)$count;
     }
     $this->processArrayCommand($cmd, $args);
-    return $this->processVariantResponse();
+    list ($cursor, $retval) = $this->processVariantResponse();
+    return $retval;
   }
 
-  public function scan($cursor, $pattern = null, $count = null) {
+  public function scan(&$cursor, $pattern = null, $count = null) {
     return $this->scanImpl('SCAN', null, $cursor, $pattern, $count);
-}
+  }
 
-  public function sScan($key, $cursor, $pattern = null, $count = null) {
-    return $this->scanImpl('SSCAN', $key, $cursor, $pattern, $count);
+  public function sScan($key, &$cursor, $pattern = null, $count = null) {
+    return $this->scanImpl('SCAN', null, $cursor, $pattern, $count);
+  }
+
+  public function zScan($key, &$cursor, $pattern = null, $count = null) {
+    return $this->scanImpl('ZSCAN', null, $cursor, $pattern, $count);
   }
 
   /* Multi --------------------------------------------------------------- */
