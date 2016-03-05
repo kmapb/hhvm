@@ -509,7 +509,8 @@ class Redis {
 
   /* Scan --------------------------------------------------------------- */
 
-  protected function scanImpl($cmd, $key, $cursor, $pattern, $count) {
+  protected function scanImpl($cmd, $key, &$cursor, $pattern, $count) {
+    if ($cursor === "0") return false;
     $args = [];
     if ($key !== null) {
       $args[] = $this->_prefix($key);
@@ -529,15 +530,35 @@ class Redis {
       $args[] = (int)$count;
     }
     $this->processArrayCommand($cmd, $args);
-    return $this->processVariantResponse();
+    list ($cursor, $results) = $this->processVariantResponse();
+    return $results;
   }
 
-  public function scan($cursor, $pattern = null, $count = null) {
+  public function scan(&$cursor, $pattern = null, $count = null) {
     return $this->scanImpl('SCAN', null, $cursor, $pattern, $count);
-}
+  }
 
-  public function sScan($key, $cursor, $pattern = null, $count = null) {
+  public function sScan($key, &$cursor, $pattern = null, $count = null) {
     return $this->scanImpl('SSCAN', $key, $cursor, $pattern, $count);
+  }
+
+  public function hScan($key, &$cursor, $pattern = null, $count = null) {
+    return $this->scanImpl('HSCAN', $key, $cursor, $pattern, $count);
+  }
+
+  public function zScan($key, &$cursor, $pattern = null, $count = null) {
+    $flat = $this->scanImpl('ZSCAN', $key, $cursor, $pattern, $count);
+    if ($flat === false) return $flat;
+    /*
+     * ZScan behaves differently from the other *scan functions. The wire
+     * protocol returns names in even slots s, and the corresponding value
+     * in odd slot s + 1. The PHP client returns these as an array mapping
+     * keys to values.
+     */
+    assert(count($flat) % 2 == 0);
+    $ret = array();
+    for ($i = 0; $i < count($flat); $i += 2) $ret[$flat[$i]] = $flat[$i + 1];
+    return $ret;
   }
 
   /* Multi --------------------------------------------------------------- */
