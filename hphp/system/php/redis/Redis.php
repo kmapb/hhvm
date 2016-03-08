@@ -510,6 +510,9 @@ class Redis {
   /* Scan --------------------------------------------------------------- */
 
   protected function scanImpl($cmd, $key, &$cursor, $pattern, $count) {
+    if ($this->mode != self::ATOMIC) {
+      throw new RedisException("Can't call SCAN commands in multi or pipeline mode!");
+    }
     if ($cursor === "0") return false;
     $args = [];
     if ($key !== null) {
@@ -530,7 +533,12 @@ class Redis {
       $args[] = (int)$count;
     }
     $this->processArrayCommand($cmd, $args);
-    list ($cursor, $results) = $this->processVariantResponse();
+    $resp = $this->processVariantResponse();
+    if (!is_array($resp) || count($resp) != 2) {
+      throw new RedisException(
+        sprintf("Invalid %s response: %s", $cmd, print_r($resp, true)));
+    }
+    list ($cursor, $results) = $resp;
     return $results;
   }
 
