@@ -473,7 +473,7 @@ static inline bool hugePagesSoundNice() {
 }
 
 static inline int nsjrDefault() {
-  return RuntimeOption::ServerExecutionMode() ? 5 : 0;
+  return RuntimeOption::ServerExecutionMode() ? 20 : 0;
 }
 
 uint64_t ahotDefault() {
