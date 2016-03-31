@@ -513,16 +513,26 @@ class Redis {
     if ($this->mode != self::ATOMIC) {
       throw new RedisException("Can't call SCAN commands in multi or pipeline mode!");
     }
+
     if ($cursor === "0") return false;
+
+    $maybePrefix = function($pattern) {
+      if ($pattern == null) {
+        // It's really a wildcard
+	$pattern = '*';
+      }
+      return $this->_prefix($pattern);
+    };
+
     $args = [];
-    if ($key !== null) {
-      $args[] = $this->_prefix($key);
+    if ($cmd !== 'SCAN') {
+      $args[] = $maybePrefix($key);
     }
     $args[] = (int)$cursor;
-    if ($pattern !== null) {
+    if ($pattern !== null || ($cmd === 'SCAN' && $this->prefix !== '')) {
       $args[] = 'MATCH';
       if ($cmd === 'SCAN') {
-        $args[] = (string)$this->_prefix($pattern);
+        $args[] = (string)$maybePrefix($pattern);
       }
       else {
         $args[] = (string)$pattern;

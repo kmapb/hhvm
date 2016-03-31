@@ -1,33 +1,21 @@
+array(4) {
+  [0]=>
+  string(53) "REDIS_TEST:a6093675a82c7568ac86d89ad9ec2ab9:key:three"
+  [1]=>
+  string(51) "REDIS_TEST:a6093675a82c7568ac86d89ad9ec2ab9:key:one"
+  [2]=>
+  string(52) "REDIS_TEST:a6093675a82c7568ac86d89ad9ec2ab9:key:four"
+  [3]=>
+  string(51) "REDIS_TEST:a6093675a82c7568ac86d89ad9ec2ab9:key:two"
+}
+string(1) "0"
 array(2) {
   [0]=>
-  string(1) "0"
+  string(53) "REDIS_TEST:a6093675a82c7568ac86d89ad9ec2ab9:key:three"
   [1]=>
-  array(4) {
-    [0]=>
-    string(52) "REDIS_TEST:a994b47cc077764cbbb47943ee50fca1:key:four"
-    [1]=>
-    string(51) "REDIS_TEST:a994b47cc077764cbbb47943ee50fca1:key:one"
-    [2]=>
-    string(53) "REDIS_TEST:a994b47cc077764cbbb47943ee50fca1:key:three"
-    [3]=>
-    string(51) "REDIS_TEST:a994b47cc077764cbbb47943ee50fca1:key:two"
-  }
+  string(51) "REDIS_TEST:a6093675a82c7568ac86d89ad9ec2ab9:key:two"
 }
-array(2) {
-  [0]=>
-  string(1) "0"
-  [1]=>
-  array(2) {
-    [0]=>
-    string(53) "REDIS_TEST:a994b47cc077764cbbb47943ee50fca1:key:three"
-    [1]=>
-    string(51) "REDIS_TEST:a994b47cc077764cbbb47943ee50fca1:key:two"
-  }
+string(1) "0"
+array(0) {
 }
-array(2) {
-  [0]=>
-  string(1) "0"
-  [1]=>
-  array(0) {
-  }
-}
+string(1) "0"

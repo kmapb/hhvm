@@ -8,8 +8,16 @@ $r->delete('sscan');
 
 $r->sadd('sscan', 'member:one', 'member:two', 'member:three', 'member:four');
 
-var_dump($r->sscan('sscan', 0));
-var_dump($r->sscan('sscan', 0, 'member:t*'));
-var_dump($r->sscan('sscan', 0, 'nomember:*'));
+$cursor = 0;
+var_dump($r->sscan('sscan', $cursor));
+var_dump($cursor);
+
+$cursor = 0;
+var_dump($r->sscan('sscan', $cursor, 'member:t*'));
+var_dump($cursor);
+
+$cursor = 0;
+var_dump($r->sscan('sscan', $cursor, 'nomember:*'));
+var_dump($cursor);
 
 $r->delete('sscan');
