@@ -42,6 +42,7 @@ class Redis {
   const OPT_SERIALIZER   = 1;
   const OPT_PREFIX       = 2;
   const OPT_READ_TIMEOUT = 3;
+  const OPT_SCAN         = 4;
 
   /* Type of serialization to use with values stored in redis */
   const SERIALIZER_NONE     = 0;
@@ -50,6 +51,11 @@ class Redis {
   /* Options used by lInsert and similar methods */
   const AFTER  = 'after';
   const BEFORE = 'before';
+
+  /* Scan retry settings. We essentially always retry, so this is
+     just for PHP 5 compatibility. */
+ const SCAN_RETRY = 0;
+ const SCAN_NORETRY = 1;
 
   /* Connection ---------------------------------------------------------- */
 
@@ -513,32 +519,36 @@ class Redis {
     if ($this->mode != self::ATOMIC) {
       throw new RedisException("Can't call SCAN commands in multi or pipeline mode!");
     }
-    if ($cursor === "0") return false;
-    $args = [];
-    if ($key !== null) {
-      $args[] = $this->_prefix($key);
-    }
-    $args[] = (int)$cursor;
-    if ($pattern !== null) {
-      $args[] = 'MATCH';
-      if ($cmd === 'SCAN') {
-        $args[] = (string)$this->_prefix($pattern);
+
+    $results = false;
+    do {
+      if ($cursor === 0) return $results;
+
+      $args = [];
+      if ($cmd !== 'SCAN') {
+	$args[] = $this->_prefix($key);
       }
-      else {
-        $args[] = (string)$pattern;
+      $args[] = (int)$cursor;
+      if ($pattern !== null) {
+	$args[] = 'MATCH';
+	$args[] = (string)$pattern;
       }
-    }
-    if ($count !== null) {
-      $args[] = 'COUNT';
-      $args[] = (int)$count;
-    }
-    $this->processArrayCommand($cmd, $args);
-    $resp = $this->processVariantResponse();
-    if (!is_array($resp) || count($resp) != 2) {
-      throw new RedisException(
-        sprintf("Invalid %s response: %s", $cmd, print_r($resp, true)));
-    }
-    list ($cursor, $results) = $resp;
+      if ($count !== null) {
+	$args[] = 'COUNT';
+	$args[] = (int)$count;
+      }
+      $this->processArrayCommand($cmd, $args);
+      $resp = $this->processVariantResponse();
+      if (!is_array($resp) || count($resp) != 2 || !is_array($resp[1])) {
+	throw new RedisException(
+	  sprintf("Invalid %s response: %s", $cmd, print_r($resp, true)));
+      }
+      $cursor = (int)$resp[0];
+      $results = $resp[1];
+      // Provide SCAN_RETRY semantics by default. If iteration is done and
+      // there were no results, $cursor === 0 check at the top of the loop
+      // will pop us out.
+    } while(count($results) == 0);
     return $results;
   }
 

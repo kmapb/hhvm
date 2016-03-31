@@ -13,7 +13,7 @@
 # define HHVM_VERSION_MAJOR 3
 # define HHVM_VERSION_MINOR 13
 # define HHVM_VERSION_PATCH 1
-# define HHVM_VERSION_SUFFIX ""
+# define HHVM_VERSION_SUFFIX "-slack"
 #endif
 
 /* HHVM_VERSION_ID minus the patch number
